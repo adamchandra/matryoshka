@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-package matryoshka
+package matryoshka.implicits
+
+import matryoshka._
 
 import scalaz._
+import scalaz.syntax.monad._
 
-sealed class FreeOps[F[_], A](self: Free[F, A]) {
-  def interpretCata(φ: Algebra[F, A])(implicit F: Functor[F]): A =
-    matryoshka.interpretCata(self)(φ)
+sealed class CoalgebraOps[F[_], A](self: Coalgebra[F, A]) {
+  def generalize[N[_]: Applicative](implicit F: Functor[F])
+      : GCoalgebra[N, F, A] =
+    self(_).map(_.point[N])
+
+  def generalizeM[M[_]: Applicative]: CoalgebraM[M, F, A] = self(_).point[M]
+
+  def generalizeElgot[N[_]: Applicative]: ElgotCoalgebra[N, F, A] =
+    self(_).point[N]
 }

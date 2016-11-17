@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package matryoshka
+package matryoshka.data
+
+import matryoshka._
+
+import scala.Either
 
 import scalaz._
-import scalaz.syntax.monad._
 
-sealed class CoalgebraOps[F[_], A](self: Coalgebra[F, A]) {
-  def generalize[N[_]: Monad](implicit F: Functor[F]): GCoalgebra[N, F, A] =
-    self(_).map(_.point[N])
+trait EitherInstances {
+  implicit def eitherRecursive[A, B]: Recursive.Aux[Either[A, B], Const[Either[A, B], ?]] =
+    id.idRecursive[Either[A, B]]
 
-  def generalizeM[M[_]: Monad]: CoalgebraM[M, F, A] = self(_).point[M]
-
-  def generalizeElgot[M[_]: Monad]: CoalgebraM[M, F, A] = self.generalizeM
+  implicit def eitherCorecursive[A, B]: Corecursive.Aux[Either[A, B], Const[Either[A, B], ?]] =
+    id.idCorecursive[Either[A, B]]
 }
+
+object either extends EitherInstances

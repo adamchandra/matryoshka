@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package matryoshka
+package matryoshka.data
 
-import matryoshka.implicits._
-
-import scala.Some
+import matryoshka._
 
 import scalaz._
 
-/** An extractor to make it easier to pattern-match on arbitrary [[Recursive]]
-  * structures.
-  *
-  * NB: This extractor is irrufutable and doesn’t break exhaustiveness checking.
-  */
-object Embed {
-  def unapply[T, F[_]](obj: T)(implicit T: Recursive.Aux[T, F], F: Functor[F])
-      : Some[F[T]] =
-    Some(obj.project)
+trait MaybeInstances {
+  implicit def maybeRecursive[A]: Recursive.Aux[Maybe[A], Const[Maybe[A], ?]] =
+    id.idRecursive[Maybe[A]]
+
+  implicit def maybeCorecursive[A]: Corecursive.Aux[Maybe[A], Const[Maybe[A], ?]] =
+    id.idCorecursive[Maybe[A]]
 }
+
+object maybe extends MaybeInstances

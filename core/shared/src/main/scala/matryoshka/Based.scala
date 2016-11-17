@@ -16,19 +16,14 @@
 
 package matryoshka
 
-import matryoshka.implicits._
+import simulacrum.typeclass
 
-import scala.Some
-
-import scalaz._
-
-/** An extractor to make it easier to pattern-match on arbitrary [[Recursive]]
-  * structures.
-  *
-  * NB: This extractor is irrufutable and doesn’t break exhaustiveness checking.
+/** Provides a type describing the pattern functor of some {co}recursive type
+  * `T`. For standard fixed-point types like [[matryoshka.data.Fix]],
+  * `Patterned[Fix[F]]#Base` is simply `F`. However, directly recursive types
+  * generally have a less obivous pattern functor. E.g., `Patterned[Cofree[F,
+  * A]]#Base` is `EnvT[A, F, ?]`.
   */
-object Embed {
-  def unapply[T, F[_]](obj: T)(implicit T: Recursive.Aux[T, F], F: Functor[F])
-      : Some[F[T]] =
-    Some(obj.project)
+@typeclass trait Based[T] {
+  type Base[A]
 }

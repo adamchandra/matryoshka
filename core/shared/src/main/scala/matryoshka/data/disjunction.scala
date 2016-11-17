@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package matryoshka
+package matryoshka.data
+
+import matryoshka._
 
 import scalaz._
-import scalaz.syntax.comonad._
 
-sealed class AlgebraOps[F[_], A](self: Algebra[F, A]) {
-  def generalize[W[_]: Comonad](implicit F: Functor[F]): GAlgebra[W, F, A] =
-    node => self(node ∘ (_.copoint))
+trait DisjunctionInstances {
+  implicit def disjunctionRecursive[A, B]: Recursive.Aux[A \/ B, Const[A \/ B, ?]] =
+    id.idRecursive[A \/ B]
 
-  def generalizeElgot[W[_]: Comonad]: ElgotAlgebra[W, F, A] =
-    w => self(w.copoint)
+  implicit def disjunctionCorecursive[A, B]: Corecursive.Aux[A \/ B, Const[A \/ B, ?]] =
+    id.idCorecursive[A \/ B]
 }
+
+object disjunction extends DisjunctionInstances

@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package matryoshka
+package matryoshka.implicits
 
-import matryoshka.implicits._
-
-import scala.Some
+import matryoshka._
 
 import scalaz._
+import scalaz.syntax.comonad._
 
-/** An extractor to make it easier to pattern-match on arbitrary [[Recursive]]
-  * structures.
-  *
-  * NB: This extractor is irrufutable and doesn’t break exhaustiveness checking.
-  */
-object Embed {
-  def unapply[T, F[_]](obj: T)(implicit T: Recursive.Aux[T, F], F: Functor[F])
-      : Some[F[T]] =
-    Some(obj.project)
+sealed class AlgebraOps[F[_], A](self: Algebra[F, A]) {
+  def generalize[W[_]: Comonad](implicit F: Functor[F]): GAlgebra[W, F, A] =
+    node => self(node ∘ (_.copoint))
+
+  def generalizeElgot[W[_]: Comonad]: ElgotAlgebra[W, F, A] =
+    w => self(w.copoint)
 }
